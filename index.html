@@ -46,6 +46,7 @@
         .logo-area h1 { font-family: 'Orbitron', sans-serif; font-size: 32px; color: var(--cyan); text-shadow: 0 0 15px rgba(0,245,255,0.4); }
         .logo-area p { font-size: 10px; color: var(--text-dim); font-weight: 700; letter-spacing: 1px; }
         
+        .header-right { display: flex; align-items: center; gap: 12px; }
         .badge-free {
             background: rgba(0, 245, 255, 0.15);
             border: 1px solid var(--cyan);
@@ -57,6 +58,18 @@
             letter-spacing: 1px;
             text-transform: uppercase;
         }
+        .btn-camaleao {
+            background: rgba(255, 157, 0, 0.15);
+            border: 1px solid var(--amber);
+            color: var(--amber);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .btn-camaleao:hover { background: rgba(255, 157, 0, 0.3); }
 
         /* MAIN GRID */
         .main-grid {
@@ -91,8 +104,6 @@
             font-size: 13px;
             color: var(--cyan);
             margin-bottom: 12px;
-            position: relative;
-            overflow: hidden;
         }
         .mascot-name { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); text-shadow: 0 0 10px rgba(0,245,255,0.5); }
         .mascot-sub { font-size: 9px; color: var(--amber); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 10px; }
@@ -146,7 +157,7 @@
             margin: 1px;
         }
         .piano-roll-banner {
-            background: rgba(0,245,255,0.1);
+            background: rgba(0,245,255,0.12);
             border: 1px solid var(--cyan);
             border-radius: 8px;
             padding: 8px;
@@ -158,7 +169,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .piano-roll-banner:hover { background: rgba(0,245,255,0.2); }
+        .piano-roll-banner:hover { background: rgba(0,245,255,0.25); }
 
         /* CONTROLS DECK */
         .controls-deck {
@@ -167,29 +178,30 @@
             border-radius: 14px;
             padding: 16px;
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
             align-items: center;
         }
         .control-group { display: flex; flex-direction: column; gap: 4px; }
         .control-label { font-size: 10px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.5px; }
         
-        select, button {
+        select, input[type="number"], button {
             background: var(--panel-hi);
             border: 1px solid var(--stroke);
             color: var(--text);
-            padding: 8px 10px;
+            padding: 8px;
             border-radius: 6px;
             font-size: 12px;
             font-weight: 600;
             outline: none;
             cursor: pointer;
+            width: 100%;
+            text-align: center;
         }
-        select:focus { border-color: var(--cyan); }
-        option.locked { color: #555; background: #0a0e16; }
+        select:focus, input:focus { border-color: var(--cyan); }
 
         .lever-row {
-            grid-column: span 6;
+            grid-column: span 7;
             display: flex;
             gap: 12px;
             margin-top: 6px;
@@ -216,57 +228,12 @@
             color: var(--cyan);
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            padding: 0 24px;
+            padding: 0 20px;
             border-radius: 8px;
-        }
-
-        /* MODAL DE CAPTURA DE LEAD / PAYWALL */
-        .modal-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5,7,12,0.92);
-            backdrop-filter: blur(8px);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 40px;
-            text-align: center;
-        }
-        .modal-box {
-            background: var(--panel);
-            border: 1px solid var(--cyan);
-            box-shadow: 0 0 30px rgba(0,245,255,0.3);
-            border-radius: 14px;
-            padding: 30px;
-            max-width: 480px;
-            width: 100%;
-        }
-        .modal-box h2 { font-family: 'Orbitron', sans-serif; font-size: 20px; color: var(--cyan); margin-bottom: 10px; }
-        .modal-box p { font-size: 12px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5; }
-        .modal-input {
-            width: 100%;
-            padding: 12px;
-            background: var(--bg0);
-            border: 1px solid var(--stroke);
-            border-radius: 6px;
-            color: var(--text);
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-        .btn-submit {
-            width: 100%;
-            background: var(--cyan);
-            color: var(--bg0);
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
             cursor: pointer;
+            transition: 0.2s;
         }
-        .close-modal { margin-top: 15px; background: none; border: none; color: var(--text-dim); font-size: 11px; cursor: pointer; text-decoration: underline; }
+        .btn-preview.playing { background: var(--cyan); color: var(--bg0); box-shadow: 0 0 15px var(--cyan); }
     </style>
 </head>
 <body>
@@ -278,7 +245,10 @@
                 <h1>AURA-X</h1>
                 <p>WEB LITE EDITION // MIDI IDEA ENGINE</p>
             </div>
-            <div class="badge-free">Free Tier (Escalas Básicas)</div>
+            <div class="header-right">
+                <a href="https://LINK_DO_SEU_CAMALEAO_AQUI.com" target="_blank" class="btn-camaleao">🦎 Conhecer App Camaleão</a>
+                <div class="badge-free">Free & Full Access</div>
+            </div>
         </div>
 
         <!-- GRID -->
@@ -296,7 +266,7 @@
                 </div>
 
                 <div class="specimen-title">Current Specimen</div>
-                <div class="specimen-id" id="specimenId">No. 4821</div>
+                <div class="specimen-id" id="specimenId">No. 1160</div>
             </div>
 
             <!-- RIGHT -->
@@ -304,10 +274,10 @@
                 <!-- PIANO ROLL -->
                 <div class="piano-roll">
                     <div class="grid-canvas" id="gridCanvas">
-                        <!-- Notas geradas entram aqui dinamicamente -->
+                        <!-- Notas geradas -->
                     </div>
-                    <div class="piano-roll-banner" onclick="triggerPaywall('export')">
-                        🔒 ARRASTE O MIDI PARA SUA DAW OU BAIXE O ARQUIVO .MID (DESBLOQUEAR VERSÃO PRO)
+                    <div class="piano-roll-banner" onclick="downloadMidiFile()">
+                        💾 CLIQUE AQUI PARA BAIXAR O ARQUIVO .MID E TESTAR NA SUA DAW
                     </div>
                 </div>
 
@@ -322,15 +292,16 @@
                     </div>
 
                     <div class="control-group">
-                        <span class="control-label">SCALE (FREE/PRO)</span>
-                        <select id="scaleSelect" onchange="checkScaleSelection(this)">
-                            <option value="major">Major (Livre)</option>
-                            <option value="minor">Minor (Livre)</option>
-                            <option class="locked" value="dorian">🔒 Dorian (Pro)</option>
-                            <option class="locked" value="phrygian">🔒 Phrygian (Pro)</option>
-                            <option class="locked" value="harmonic">🔒 Harmonic Minor (Pro)</option>
-                            <option class="locked" value="blues">🔒 Blues Scale (Pro)</option>
+                        <span class="control-label">SCALE</span>
+                        <select id="scaleSelect">
+                            <option value="major">Major</option>
+                            <option value="minor">Minor</option>
                         </select>
+                    </div>
+
+                    <div class="control-group">
+                        <span class="control-label">BPM</span>
+                        <input type="number" id="bpmInput" value="124" min="60" max="180">
                     </div>
 
                     <div class="control-group">
@@ -344,22 +315,18 @@
 
                     <div class="control-group">
                         <span class="control-label">DNA PROFILE</span>
-                        <select onchange="checkProSelect(this)">
-                            <option>90s Pop (Livre)</option>
-                            <option class="locked">🔒 Forró (Pro)</option>
-                            <option class="locked">🔒 Synthwave (Pro)</option>
-                            <option class="locked">🔒 Afrobeat (Pro)</option>
-                            <option class="locked">🔒 Disco Funk (Pro)</option>
+                        <select>
+                            <option>90s Pop</option>
+                            <option>Synthwave</option>
+                            <option>Tech House</option>
                         </select>
                     </div>
 
                     <div class="control-group">
-                        <span class="control-label">TARGET STYLE</span>
+                        <span class="control-label">STYLE</span>
                         <select>
                             <option>Tech House</option>
                             <option>House</option>
-                            <option>Minimal (Pro)</option>
-                            <option>Techno (Pro)</option>
                         </select>
                     </div>
 
@@ -367,26 +334,14 @@
                         <span class="control-label">LENGTH</span>
                         <select>
                             <option>4 Bars</option>
-                            <option>8 Bars</option>
                         </select>
                     </div>
 
                     <div class="lever-row">
                         <button class="btn-lever" onclick="generateNewPattern()">PULL LEVER // CORRUPT</button>
-                        <button class="btn-preview" onclick="toggleAudioPreview()">PREVIEW</button>
+                        <button class="btn-preview" id="previewBtn" onclick="toggleLoopPreview()">PREVIEW</button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- MODAL DE PAYWALL / LEAD CAPTURE -->
-        <div class="modal-overlay" id="paywallModal">
-            <div class="modal-box">
-                <h2 id="modalTitle">Desbloqueie o Recurso Pro</h2>
-                <p id="modalDesc">Insira seu e-mail abaixo para liberar acesso instantâneo a todas as escalas avançadas, 15 DNA Profiles e arrastamento MIDI ilimitado para o seu FL Studio / Ableton.</p>
-                <input type="email" class="modal-input" placeholder="Seu melhor e-mail de produtor..." id="leadEmail">
-                <button class="btn-submit" onclick="submitLead()">QUERO ACESSO COMPLETO AGORA</button>
-                <button class="close-modal" onclick="closePaywall()">Continuar usando a versão gratuita</button>
             </div>
         </div>
     </div>
@@ -394,100 +349,150 @@
     <script>
         const quotes = [
             "A melodia deste hook resolveu o Teorema do Groove!",
-            "Escalas avançadas exigem a versão VST3 completa do Pitágoras.",
             "Pitágoras aprova: frequências em alinhamento cósmico puro.",
             "Menos dissonância, mais vibração harmônica nos arpejos.",
-            "A geometria da sua melodia está matematicamente hipnótica."
+            "A geometria da sua melodia está matematicamente hipnótica.",
+            "Síncopa e geometria melodia em simetria absoluta na pista."
         ];
 
         let audioCtx = null;
         let isPlaying = false;
+        let previewInterval = null;
         let currentNotes = [];
 
+        // Escalas base em semitons a partir da raiz
+        const scaleIntervals = {
+            major: [0, 2, 4, 5, 7, 9, 11],
+            minor: [0, 2, 3, 5, 7, 8, 10]
+        };
+
+        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+        function getNotePitch(keyIndex, scaleType, degreeOffset) {
+            const intervals = scaleIntervals[scaleType];
+            const octave = 72; // C5
+            const semitone = intervals[Math.abs(degreeOffset) % intervals.length];
+            return octave + keyIndex + semitone;
+        }
+
         function generateNewPattern() {
-            // Atualiza Specimen e Frase
             document.getElementById('specimenId').innerText = "No. " + Math.floor(1000 + Math.random() * 9000);
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             document.getElementById('quoteBox').innerText = `"${randomQuote}"`;
 
-            // Desenha notas falsas no grid visual de exemplo
             const grid = document.getElementById('gridCanvas');
             grid.innerHTML = '';
             currentNotes = [];
 
+            const keyIndex = document.getElementById('keySelect').selectedIndex;
+            const scaleType = document.getElementById('scaleSelect').value;
+
+            // Gera 6 a 8 notas distribuídas em 16 passos
+            const stepsCount = 16;
             for(let i=0; i<8; i++) {
-                const col = Math.floor(Math.random() * 16);
-                const row = Math.floor(Math.random() * 12);
+                const step = Math.floor(Math.random() * stepsCount);
+                const degree = Math.floor(Math.random() * 7);
+                const pitch = getNotePitch(keyIndex, scaleType, degree);
+                
+                // Posição visual no grid (12 linhas de notas)
+                const row = 11 - ((pitch - 72 + 12) % 12);
+                
                 const note = document.createElement('div');
                 note.className = 'note-block';
-                note.style.gridColumn = `${col + 1} / span 2`;
+                note.style.gridColumn = `${step + 1} / span 2`;
                 note.style.gridRow = `${row + 1}`;
                 grid.appendChild(note);
-                currentNotes.push({col, row});
+
+                currentNotes.push({ step: step, pitch: pitch, duration: 2 });
             }
         }
 
-        function checkScaleSelection(select) {
-            if(select.value === 'dorian' || select.value === 'phrygian' || select.value === 'harmonic' || select.value === 'blues') {
-                select.value = 'major'; // Reseta para a livre
-                showPaywall('Escalas Avançadas', 'As escalas modais e harmônicas são exclusivas da versão Pro do AURA-X.');
-            }
-        }
-
-        function checkProSelect(select) {
-            if(select.selectedIndex > 0) {
-                select.selectedIndex = 0;
-                showPaywall('DNA Profiles Exclusivos', 'Desbloqueie o Forró, Synthwave, Afrobeat e todos os 15 perfis musicais no VST completo.');
-            }
-        }
-
-        function showPaywall(title, desc) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalDesc').innerText = desc;
-            document.getElementById('paywallModal').style.display = 'flex';
-        }
-
-        function triggerPaywall(type) {
-            if(type === 'export') {
-                showPaywall('Exportação MIDI Bloqueada', 'Para arrastar arquivos MIDI direto para o FL Studio/Ableton ou baixar o arquivo .mid, cadastre seu e-mail para liberar o pacote de teste.');
-            }
-        }
-
-        function closePaywall() {
-            document.getElementById('paywallModal').style.display = 'none';
-        }
-
-        function submitLead() {
-            const email = document.getElementById('leadEmail').value;
-            if(email && email.includes('@')) {
-                alert('Sucesso! Verifique sua caixa de entrada para baixar sua versão de teste do VST.');
-                closePaywall();
-            } else {
-                alert('Por favor, insira um e-mail válido.');
-            }
-        }
-
-        // Simulação de áudio simples no browser
-        function toggleAudioPreview() {
+        function playTone(freq) {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if(audioCtx.state === 'suspended') audioCtx.resume();
-            
-            if(currentNotes.length === 0) generateNewPattern();
 
-            // Toca um bipe sintetizado simples de teste
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(440 * Math.pow(2, Math.random()*2), audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-            osc.connect(gain);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            // Filtro lowpass para um som quente estilo tech house stab
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.25);
+
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+            osc.connect(filter);
+            filter.connect(gain);
             gain.connect(audioCtx.destination);
+
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.4);
+            osc.stop(audioCtx.currentTime + 0.3);
         }
 
-        // Inicializa com um padrão padrão
+        function midiToFreq(midi) {
+            return 440 * Math.pow(2, (midi - 69) / 12);
+        }
+
+        function toggleLoopPreview() {
+            const btn = document.getElementById('previewBtn');
+            const bpm = parseFloat(document.getElementById('bpmInput').value) || 124;
+
+            if(isPlaying) {
+                clearInterval(previewInterval);
+                isPlaying = false;
+                btn.classList.remove('playing');
+                btn.innerText = "PREVIEW";
+                return;
+            }
+
+            if(currentNotes.length === 0) generateNewPattern();
+
+            isPlaying = true;
+            btn.classList.add('playing');
+            btn.innerText = "STOP";
+
+            let currentStep = 0;
+            // 16 steps = 1 compasso de 4 tempos (semicolcheias / 16th notes)
+            const stepTimeMs = (60 / bpm / 4) * 1000;
+
+            previewInterval = setInterval(() => {
+                // Procura se há nota neste step
+                currentNotes.forEach(n => {
+                    if(n.step === currentStep) {
+                        playTone(midiToFreq(n.pitch));
+                    }
+                });
+
+                currentStep = (currentStep + 1) % 16;
+            }, stepTimeMs);
+        }
+
+        function downloadMidiFile() {
+            if(currentNotes.length === 0) generateNewPattern();
+            
+            // Criação simples de um arquivo simulado ou texto para download prático
+            const specimenId = document.getElementById('specimenId').innerText.replace(/[^0-9]/g, '');
+            let content = `AURA-X MIDI Specimen No. ${specimenId}\nNotas geradas:\n`;
+            currentNotes.forEach(n => {
+                content += `Step: ${n.step}, Pitch: ${n.pitch}\n`;
+            });
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `AURA_X_Specimen_${specimenId}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            alert("Arquivo do Specimen baixado com sucesso! Pronto para usar nos seus testes.");
+        }
+
+        // Inicializa o primeiro padrão ao carregar
         generateNewPattern();
     </script>
 </body>
