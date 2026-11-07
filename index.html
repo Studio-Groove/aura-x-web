@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA-X Web Lite // Sacred Geometric Groove</title>
+    <!-- Google Fonts & Tailwind -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;750;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg0: #05070C;
+            --bg1: #0A0E16;
+            --panel: #0F1420;
+            --panel-hi: #182033;
+            --stroke: #222D45;
+            --text: #EAF0FB;
+            --text-dim: #77839F;
+            --cyan: #00F5FF;
+            --amber: #FF9D00;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg0); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+
+        .plugin-container {
+            width: 1120px;
+            background: linear-gradient(135deg, var(--bg1), var(--bg0));
+            border: 1px solid var(--stroke);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* HEADER */
+        .header {
+            height: 72px;
+            background: rgba(24, 32, 51, 0.6);
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, transparent, var(--cyan), var(--amber), transparent) 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+        .logo-area h1 { font-family: 'Orbitron', sans-serif; font-size: 32px; color: var(--cyan); text-shadow: 0 0 15px rgba(0,245,255,0.4); }
+        .logo-area p { font-size: 10px; color: var(--text-dim); font-weight: 700; letter-spacing: 1px; }
+        
+        .badge-free {
+            background: rgba(0, 245, 255, 0.15);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* MAIN GRID */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 290px 1fr;
+            gap: 16px;
+            padding: 20px;
+        }
+
+        /* MASCOT PANEL */
+        .mascot-panel {
+            background: var(--panel);
+            border: 1px solid var(--stroke);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+        .mascot-avatar {
+            width: 100%;
+            height: 120px;
+            background: radial-gradient(circle, rgba(0,245,255,0.15) 0%, transparent 70%);
+            border: 1px dashed var(--stroke);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            color: var(--cyan);
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mascot-name { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); text-shadow: 0 0 10px rgba(0,245,255,0.5); }
+        .mascot-sub { font-size: 9px; color: var(--amber); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 10px; }
+        
+        .quote-box {
+            background: var(--bg0);
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 11px;
+            font-style: italic;
+            color: var(--text);
+            margin-bottom: 15px;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .specimen-title { font-size: 9px; color: var(--text-dim); font-weight: 700; text-transform: uppercase; }
+        .specimen-id { font-family: 'Orbitron', sans-serif; font-size: 22px; color: var(--amber); font-weight: 700; }
+
+        /* RIGHT SECTION */
+        .right-section { display: flex; flex-direction: column; gap: 16px; }
+
+        /* PIANO ROLL PREVIEW */
+        .piano-roll {
+            height: 270px;
+            background: var(--panel);
+            border: 1px solid var(--stroke);
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 10px;
+        }
+        .grid-canvas {
+            position: absolute;
+            top: 40px; left: 40px; right: 20px; bottom: 35px;
+            background: rgba(5,7,12,0.5);
+            border: 1px solid var(--stroke);
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+        }
+        .note-block {
+            background: var(--cyan);
+            border-radius: 3px;
+            box-shadow: 0 0 8px var(--cyan);
+            margin: 1px;
+        }
+        .piano-roll-banner {
+            background: rgba(0,245,255,0.1);
+            border: 1px solid var(--cyan);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--cyan);
+            z-index: 2;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .piano-roll-banner:hover { background: rgba(0,245,255,0.2); }
+
+        /* CONTROLS DECK */
+        .controls-deck {
+            background: var(--panel);
+            border: 1px solid var(--stroke);
+            border-radius: 14px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            align-items: center;
+        }
+        .control-group { display: flex; flex-direction: column; gap: 4px; }
+        .control-label { font-size: 10px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.5px; }
+        
+        select, button {
+            background: var(--panel-hi);
+            border: 1px solid var(--stroke);
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+        select:focus { border-color: var(--cyan); }
+        option.locked { color: #555; background: #0a0e16; }
+
+        .lever-row {
+            grid-column: span 6;
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .btn-lever {
+            flex: 1;
+            background: linear-gradient(135deg, var(--amber), #cc7a00);
+            border: none;
+            color: var(--bg0);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 14px;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,157,0,0.4);
+            transition: 0.2s;
+        }
+        .btn-lever:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,157,0,0.6); }
+
+        .btn-preview {
+            background: var(--panel-hi);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            padding: 0 24px;
+            border-radius: 8px;
+        }
+
+        /* MODAL DE CAPTURA DE LEAD / PAYWALL */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5,7,12,0.92);
+            backdrop-filter: blur(8px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 40px;
+            text-align: center;
+        }
+        .modal-box {
+            background: var(--panel);
+            border: 1px solid var(--cyan);
+            box-shadow: 0 0 30px rgba(0,245,255,0.3);
+            border-radius: 14px;
+            padding: 30px;
+            max-width: 480px;
+            width: 100%;
+        }
+        .modal-box h2 { font-family: 'Orbitron', sans-serif; font-size: 20px; color: var(--cyan); margin-bottom: 10px; }
+        .modal-box p { font-size: 12px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5; }
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg0);
+            border: 1px solid var(--stroke);
+            border-radius: 6px;
+            color: var(--text);
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        .btn-submit {
+            width: 100%;
+            background: var(--cyan);
+            color: var(--bg0);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .close-modal { margin-top: 15px; background: none; border: none; color: var(--text-dim); font-size: 11px; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="plugin-container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="logo-area">
+                <h1>AURA-X</h1>
+                <p>WEB LITE EDITION // MIDI IDEA ENGINE</p>
+            </div>
+            <div class="badge-free">Free Tier (Escalas Básicas)</div>
+        </div>
+
+        <!-- GRID -->
+        <div class="main-grid">
+            <!-- MASCOT -->
+            <div class="mascot-panel">
+                <div class="mascot-avatar">
+                    <span>[ PYTHAGORAS ]</span>
+                </div>
+                <div class="mascot-name">PYTHAGORAS</div>
+                <div class="mascot-sub">SACRED GEOMETRIC GROOVE</div>
+                
+                <div class="quote-box" id="quoteBox">
+                    "A geometria sagrada do groove foi iniciada no navegador."
+                </div>
+
+                <div class="specimen-title">Current Specimen</div>
+                <div class="specimen-id" id="specimenId">No. 4821</div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="right-section">
+                <!-- PIANO ROLL -->
+                <div class="piano-roll">
+                    <div class="grid-canvas" id="gridCanvas">
+                        <!-- Notas geradas entram aqui dinamicamente -->
+                    </div>
+                    <div class="piano-roll-banner" onclick="triggerPaywall('export')">
+                        🔒 ARRASTE O MIDI PARA SUA DAW OU BAIXE O ARQUIVO .MID (DESBLOQUEAR VERSÃO PRO)
+                    </div>
+                </div>
+
+                <!-- CONTROLS -->
+                <div class="controls-deck">
+                    <div class="control-group">
+                        <span class="control-label">KEY</span>
+                        <select id="keySelect">
+                            <option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option>
+                            <option>F</option><option>F#</option><option>G</option><option>G#</option><option>A</option><option>A#</option><option>B</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <span class="control-label">SCALE (FREE/PRO)</span>
+                        <select id="scaleSelect" onchange="checkScaleSelection(this)">
+                            <option value="major">Major (Livre)</option>
+                            <option value="minor">Minor (Livre)</option>
+                            <option class="locked" value="dorian">🔒 Dorian (Pro)</option>
+                            <option class="locked" value="phrygian">🔒 Phrygian (Pro)</option>
+                            <option class="locked" value="harmonic">🔒 Harmonic Minor (Pro)</option>
+                            <option class="locked" value="blues">🔒 Blues Scale (Pro)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <span class="control-label">ELEMENT</span>
+                        <select>
+                            <option>Tech Stabs</option>
+                            <option>Acid Plucks</option>
+                            <option>Synth Leads</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <span class="control-label">DNA PROFILE</span>
+                        <select onchange="checkProSelect(this)">
+                            <option>90s Pop (Livre)</option>
+                            <option class="locked">🔒 Forró (Pro)</option>
+                            <option class="locked">🔒 Synthwave (Pro)</option>
+                            <option class="locked">🔒 Afrobeat (Pro)</option>
+                            <option class="locked">🔒 Disco Funk (Pro)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <span class="control-label">TARGET STYLE</span>
+                        <select>
+                            <option>Tech House</option>
+                            <option>House</option>
+                            <option>Minimal (Pro)</option>
+                            <option>Techno (Pro)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <span class="control-label">LENGTH</span>
+                        <select>
+                            <option>4 Bars</option>
+                            <option>8 Bars</option>
+                        </select>
+                    </div>
+
+                    <div class="lever-row">
+                        <button class="btn-lever" onclick="generateNewPattern()">PULL LEVER // CORRUPT</button>
+                        <button class="btn-preview" onclick="toggleAudioPreview()">PREVIEW</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE PAYWALL / LEAD CAPTURE -->
+        <div class="modal-overlay" id="paywallModal">
+            <div class="modal-box">
+                <h2 id="modalTitle">Desbloqueie o Recurso Pro</h2>
+                <p id="modalDesc">Insira seu e-mail abaixo para liberar acesso instantâneo a todas as escalas avançadas, 15 DNA Profiles e arrastamento MIDI ilimitado para o seu FL Studio / Ableton.</p>
+                <input type="email" class="modal-input" placeholder="Seu melhor e-mail de produtor..." id="leadEmail">
+                <button class="btn-submit" onclick="submitLead()">QUERO ACESSO COMPLETO AGORA</button>
+                <button class="close-modal" onclick="closePaywall()">Continuar usando a versão gratuita</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+            "A melodia deste hook resolveu o Teorema do Groove!",
+            "Escalas avançadas exigem a versão VST3 completa do Pitágoras.",
+            "Pitágoras aprova: frequências em alinhamento cósmico puro.",
+            "Menos dissonância, mais vibração harmônica nos arpejos.",
+            "A geometria da sua melodia está matematicamente hipnótica."
+        ];
+
+        let audioCtx = null;
+        let isPlaying = false;
+        let currentNotes = [];
+
+        function generateNewPattern() {
+            // Atualiza Specimen e Frase
+            document.getElementById('specimenId').innerText = "No. " + Math.floor(1000 + Math.random() * 9000);
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('quoteBox').innerText = `"${randomQuote}"`;
+
+            // Desenha notas falsas no grid visual de exemplo
+            const grid = document.getElementById('gridCanvas');
+            grid.innerHTML = '';
+            currentNotes = [];
+
+            for(let i=0; i<8; i++) {
+                const col = Math.floor(Math.random() * 16);
+                const row = Math.floor(Math.random() * 12);
+                const note = document.createElement('div');
+                note.className = 'note-block';
+                note.style.gridColumn = `${col + 1} / span 2`;
+                note.style.gridRow = `${row + 1}`;
+                grid.appendChild(note);
+                currentNotes.push({col, row});
+            }
+        }
+
+        function checkScaleSelection(select) {
+            if(select.value === 'dorian' || select.value === 'phrygian' || select.value === 'harmonic' || select.value === 'blues') {
+                select.value = 'major'; // Reseta para a livre
+                showPaywall('Escalas Avançadas', 'As escalas modais e harmônicas são exclusivas da versão Pro do AURA-X.');
+            }
+        }
+
+        function checkProSelect(select) {
+            if(select.selectedIndex > 0) {
+                select.selectedIndex = 0;
+                showPaywall('DNA Profiles Exclusivos', 'Desbloqueie o Forró, Synthwave, Afrobeat e todos os 15 perfis musicais no VST completo.');
+            }
+        }
+
+        function showPaywall(title, desc) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('paywallModal').style.display = 'flex';
+        }
+
+        function triggerPaywall(type) {
+            if(type === 'export') {
+                showPaywall('Exportação MIDI Bloqueada', 'Para arrastar arquivos MIDI direto para o FL Studio/Ableton ou baixar o arquivo .mid, cadastre seu e-mail para liberar o pacote de teste.');
+            }
+        }
+
+        function closePaywall() {
+            document.getElementById('paywallModal').style.display = 'none';
+        }
+
+        function submitLead() {
+            const email = document.getElementById('leadEmail').value;
+            if(email && email.includes('@')) {
+                alert('Sucesso! Verifique sua caixa de entrada para baixar sua versão de teste do VST.');
+                closePaywall();
+            } else {
+                alert('Por favor, insira um e-mail válido.');
+            }
+        }
+
+        // Simulação de áudio simples no browser
+        function toggleAudioPreview() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            
+            if(currentNotes.length === 0) generateNewPattern();
+
+            // Toca um bipe sintetizado simples de teste
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440 * Math.pow(2, Math.random()*2), audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        // Inicializa com um padrão padrão
+        generateNewPattern();
+    </script>
+</body>
+</html>
