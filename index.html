@@ -246,12 +246,12 @@
                 <p>WEB LITE EDITION // MIDI IDEA ENGINE</p>
             </div>
             <div class="header-right">
-                <a href="https://LINK_DO_SEU_CAMALEAO_AQUI.com" target="_blank" class="btn-camaleao">🦎 Conhecer App Camaleão</a>
+                <a href="https://studio-groove.vercel.app/" target="_blank" class="btn-camaleao">🦎 Conhecer App Camaleão</a>
                 <div class="badge-free">Free & Full Access</div>
             </div>
         </div>
 
-        <!-- GRID -->
+        <!-- MAIN GRID -->
         <div class="main-grid">
             <!-- MASCOT -->
             <div class="mascot-panel">
@@ -277,7 +277,7 @@
                         <!-- Notas geradas -->
                     </div>
                     <div class="piano-roll-banner" onclick="downloadMidiFile()">
-                        💾 CLIQUE AQUI PARA BAIXAR O ARQUIVO .MID E TESTAR NA SUA DAW
+                        💾 CLIQUE AQUI PARA BAIXAR O ARQUIVO .MID REAL PARA A SUA DAW
                     </div>
                 </div>
 
@@ -352,7 +352,7 @@
             "Pitágoras aprova: frequências em alinhamento cósmico puro.",
             "Menos dissonância, mais vibração harmônica nos arpejos.",
             "A geometria da sua melodia está matematicamente hipnótica.",
-            "Síncopa e geometria melodia em simetria absoluta na pista."
+            "Síncopa e geometria melódica em simetria absoluta na pista."
         ];
 
         let audioCtx = null;
@@ -360,13 +360,10 @@
         let previewInterval = null;
         let currentNotes = [];
 
-        // Escalas base em semitons a partir da raiz
         const scaleIntervals = {
             major: [0, 2, 4, 5, 7, 9, 11],
             minor: [0, 2, 3, 5, 7, 8, 10]
         };
-
-        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
         function getNotePitch(keyIndex, scaleType, degreeOffset) {
             const intervals = scaleIntervals[scaleType];
@@ -387,14 +384,12 @@
             const keyIndex = document.getElementById('keySelect').selectedIndex;
             const scaleType = document.getElementById('scaleSelect').value;
 
-            // Gera 6 a 8 notas distribuídas em 16 passos
             const stepsCount = 16;
             for(let i=0; i<8; i++) {
                 const step = Math.floor(Math.random() * stepsCount);
                 const degree = Math.floor(Math.random() * 7);
                 const pitch = getNotePitch(keyIndex, scaleType, degree);
                 
-                // Posição visual no grid (12 linhas de notas)
                 const row = 11 - ((pitch - 72 + 12) % 12);
                 
                 const note = document.createElement('div');
@@ -403,7 +398,7 @@
                 note.style.gridRow = `${row + 1}`;
                 grid.appendChild(note);
 
-                currentNotes.push({ step: step, pitch: pitch, duration: 2 });
+                currentNotes.push({ step: step, pitch: pitch, durationTicks: 240 });
             }
         }
 
@@ -416,7 +411,6 @@
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-            // Filtro lowpass para um som quente estilo tech house stab
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'lowpass';
             filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
@@ -456,43 +450,129 @@
             btn.innerText = "STOP";
 
             let currentStep = 0;
-            // 16 steps = 1 compasso de 4 tempos (semicolcheias / 16th notes)
             const stepTimeMs = (60 / bpm / 4) * 1000;
 
             previewInterval = setInterval(() => {
-                // Procura se há nota neste step
                 currentNotes.forEach(n => {
                     if(n.step === currentStep) {
                         playTone(midiToFreq(n.pitch));
                     }
                 });
-
                 currentStep = (currentStep + 1) % 16;
             }, stepTimeMs);
         }
 
+        // Função para gerar um ficheiro MIDI (.mid) binário real compatível com DAWs
         function downloadMidiFile() {
             if(currentNotes.length === 0) generateNewPattern();
-            
-            // Criação simples de um arquivo simulado ou texto para download prático
-            const specimenId = document.getElementById('specimenId').innerText.replace(/[^0-9]/g, '');
-            let content = `AURA-X MIDI Specimen No. ${specimenId}\nNotas geradas:\n`;
-            currentNotes.forEach(n => {
-                content += `Step: ${n.step}, Pitch: ${n.pitch}\n`;
+
+            const ticksPerQuarter = 480;
+            // Cada step de 16th note equivale a 120 ticks (semicolcheia)
+            const tickPerStep = 120;
+
+            let trackEvents = [];
+            // Evento de Tempo (BPM)
+            const bpm = parseFloat(document.getElementById('bpmInput').value) || 124;
+            const microsecondsPerQuarter = Math.round(60000000 / bpm);
+            trackEvents.push({
+                tick: 0,
+                type: 'meta',
+                subtype: 0x51,
+                data: [
+                    (microsecondsPerQuarter >> 16) & 0xFF,
+                    (microsecondsPerQuarter >> 8) & 0xFF,
+                    microsecondsPerQuarter & 0xFF
+                ]
             });
 
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            // Converte as notas geradas em eventos MIDI (Note On e Note Off)
+            currentNotes.forEach(n => {
+                const startTick = n.step * tickPerStep;
+                const endTick = startTick + n.durationTicks;
+
+                trackEvents.push({ tick: startTick, type: 'channel', subtype: 0x90, note: n.pitch, velocity: 90 });
+                trackEvents.push({ tick: endTick, type: 'channel', subtype: 0x80, note: n.pitch, velocity: 0 });
+            });
+
+            // Ordena os eventos por tempo (tick)
+            trackEvents.sort((a, b) => a.tick - b.tick);
+
+            let trackBytes = [];
+            let lastTick = 0;
+
+            // Função para codificar o Delta Time em formato Variable-Length Quantity (VLQ)
+            function writeVLQ(value) {
+                let buffer = value & 0x7F;
+                value >>= 7;
+                while (value > 0) {
+                    buffer <<= 8;
+                    buffer |= ((value & 0x7F) | 0x80);
+                    value >>= 7;
+                }
+                while (true) {
+                    trackBytes.push(buffer & 0xFF);
+                    if (buffer & 0x80) {
+                        buffer >>= 8;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            trackEvents.forEach(ev => {
+                const delta = ev.tick - lastTick;
+                lastTick = ev.tick;
+                writeVLQ(delta);
+
+                if (ev.type === 'meta') {
+                    trackBytes.push(0xFF, ev.subtype, ev.data.length);
+                    ev.data.forEach(b => trackBytes.push(b));
+                } else if (ev.type === 'channel') {
+                    trackBytes.push(ev.subtype, ev.note, ev.velocity);
+                }
+            });
+
+            // Fim da Track (End of Track Meta Event)
+            writeVLQ(0);
+            trackBytes.push(0xFF, 0x2F, 0x00);
+
+            let midiBytes = [];
+            // Cabeçalho do Arquivo MIDI (MThd)
+            midiBytes.push(0x4D, 0x54, 0x68, 0x64); // "MThd"
+            midiBytes.push(0x00, 0x00, 0x00, 0x06); // Tamanho do cabeçalho (6)
+            midiBytes.push(0x00, 0x01); // Formato 1 (múltiplas tracks)
+            midiBytes.push(0x00, 0x01); // Número de tracks (1)
+            midiBytes.push((ticksPerQuarter >> 8) & 0xFF, ticksPerQuarter & 0xFF); // Ticks por quarter note
+
+            // Cabeçalho da Track (MTrk)
+            midiBytes.push(0x4D, 0x54, 0x72, 0x6B); // "MTrk"
+            const trackLength = trackBytes.length;
+            midiBytes.push(
+                (trackLength >> 24) & 0xFF,
+                (trackLength >> 16) & 0xFF,
+                (trackLength >> 8) & 0xFF,
+                trackLength & 0xFF
+            );
+
+            // Junta os bytes da track
+            midiBytes = midiBytes.concat(trackBytes);
+
+            // Cria o blob e dispara o download automático do ficheiro .mid
+            const blob = new Blob([new Uint8Array(midiBytes)], { type: 'audio/midi' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `AURA_X_Specimen_${specimenId}.txt`;
+            
+            const specimenId = document.getElementById('specimenId').innerText.replace(/[^0-9]/g, '');
+            a.download = `AURA_X_Specimen_${specimenId}.mid`;
+            
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            alert("Arquivo do Specimen baixado com sucesso! Pronto para usar nos seus testes.");
+            
+            alert("Ficheiro .mid gerado e transferido com sucesso! Podes arrastá-lo diretamente para a tua DAW.");
         }
 
-        // Inicializa o primeiro padrão ao carregar
         generateNewPattern();
     </script>
 </body>
